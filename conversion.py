@@ -1,5 +1,7 @@
 import numpy as np
 import xyz2mol
+from rdkit import Chem
+from rdkit.Chem import Draw
 
 
 def one_cycle_conversion_matrices(molecular_graph, max_bond_changes=2):
@@ -147,7 +149,57 @@ print(formaldehyde_BO[1])
 # params: charge: the charge of the overall species? or a list of the charges?
 #         atoms: a list of integers that represent the atoms
 #         AC: the adjacency matrix
-#         mol: what is this??? is this referring to the template?
+#         mol: a molecular object in RDKit, in their case, they combined it with 
+#              the coordinate systm to get a more accurate mol. We are just gonna try
+#              to use the default one that is constructed with a list of atoms
+
+
+def BO2Mol(BO, atoms):
+    """ takes in a bond order matrix and converts it to a RDkit molecular graph
+
+    Args:
+        BO (numpy array): the bond order matrix that describes our structure
+        atoms (list): the list of atomic numbers in our structure
+    """
+    rwMol = Chem.RWMol()
+    
+    BO = BO[0]
+    # add the atoms
+    atom_indices = []
+    for i in atoms:
+        atom = Chem.Atom(i)
+        idx = rwMol.AddAtom(atom)
+        atom_indices.append(idx)
+        
+    
+    # add the bonds
+    for i in range(len(BO)):
+        for j in range(i+1, len(BO)):  # Only iterate upper triangular matrix
+            bond_order = BO[i][j]
+            if bond_order > 0:
+                # Determine bond type based on bond order
+                if bond_order == 1:
+                    bond_type = Chem.BondType.SINGLE
+                elif bond_order == 2:
+                    bond_type = Chem.BondType.DOUBLE
+                elif bond_order == 3:
+                    bond_type = Chem.BondType.TRIPLE
+                else:
+                    raise ValueError(f"Unsupported bond order: {bond_order}")
+                
+                # Add the bond
+                rwMol.AddBond(i, j, bond_type)
+    
+    mol = rwMol.GetMol()
+    return mol
+
+
+# form the RDkit molecular object of formaldehyde
+formaldehyde = BO2Mol(formaldehyde_BO, atoms_int)
+
+img = Draw.MolToImage(formaldehyde)
+img.show()
+
 
 
 
