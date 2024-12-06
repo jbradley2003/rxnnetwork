@@ -1,4 +1,5 @@
 import numpy as np
+import xyz2mol
 
 
 def one_cycle_conversion_matrices(molecular_graph, max_bond_changes=2):
@@ -97,7 +98,7 @@ def print_arrays(array_list):
         print(i)
         print()
 
-# ----------------------------- TESTING ----------------------------------------------------
+# ---------------- CONVERSION MATRICES TESTING ----------------------------------------------------
 # ------------------------------------------------------------------------------------------
 r = np.array([[0,1,0,0,0,0],[1,0,0,0,0,0],[0,0,0,1,0,0], [0,0,1,0,0,0],[0,0,0,0,0,1],[0,0,0,0,1,0]])
 
@@ -106,8 +107,49 @@ test_matrix = np.array([[0,1,0],[0, 0, 1],[0, 0, 0]])
 test2_matrix = np.empty((5,5))
 result = one_cycle_conversion_matrices(test_matrix)
 
-print(test_matrix)
-print_arrays(result)
+
+
+# --------------------  For all of our Tests, we will start with FORMALDEHYDE, CH2O, easy structure
+
+# atoms list in the matrix: C, O, H, H
+atoms = ['c', 'o', 'h', 'h']
+
+# convert atoms to list of integers
+atoms_int = []
+for i in atoms:
+    atoms_int.append(xyz2mol.int_atom(i))
+
+#                            c  o  h  h
+formaldehyde_AC = np.array([[0, 1, 1, 1],
+                            [1, 0, 0, 0],
+                            [1, 0, 0, 0],
+                            [1, 0, 0, 0]])
+
+# ---------------------- TESTING OUT THE BOND ORDER MATRIX CONVERSION ------------------------
+
+# AC2BO function: params: AC: adjacency matrix
+#                         atoms: int list of atoms
+#                         charge: the charge of the structure
+formaldehyde_BO = xyz2mol.AC2BO(formaldehyde_AC, atoms_int, 0)
+
+print(formaldehyde_BO[0])
+print()
+print(formaldehyde_BO[1])
+
+
+
+
+
+
+# ---------------- TESTING OUT AC TO 3D MOLECULAR -----------------------------------------
+# we are gonna call the AC2mol function:
+
+# params: charge: the charge of the overall species? or a list of the charges?
+#         atoms: a list of integers that represent the atoms
+#         AC: the adjacency matrix
+#         mol: what is this??? is this referring to the template?
+
+
 
 
 
