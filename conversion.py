@@ -2,6 +2,7 @@ import numpy as np
 import ac2mol
 from rdkit import Chem
 from rdkit.Chem import Draw
+from rdkit.Chem.EnumerateStereoisomers import EnumerateStereoisomers
 
 
 def one_cycle_conversion_matrices(molecular_graph, max_bond_changes=2):
@@ -116,10 +117,8 @@ result = one_cycle_conversion_matrices(test_matrix)
 # atoms list in the matrix: C, O, H, H
 atoms = ['c', 'o', 'h', 'h']
 
-# convert atoms to list of integers
-atoms_int = []
-for i in atoms:
-    atoms_int.append(ac2mol.int_atom(i))
+# atoms list in integer form
+atoms_int = ac2mol.int_atom(atoms)
 
 #                            c  o  h  h
 formaldehyde_AC = np.array([[0, 1, 1, 1],
@@ -133,6 +132,7 @@ formaldehyde_AC = np.array([[0, 1, 1, 1],
 #                         atoms: int list of atoms
 #                         charge: the charge of the structure
 formaldehyde_BO = ac2mol.AC2BO(formaldehyde_AC, atoms_int, 0)
+
 
 print(formaldehyde_BO[0])
 print()
@@ -160,8 +160,36 @@ print(formaldehyde_BO[1])
 # form the RDkit molecular object of formaldehyde
 formaldehyde = ac2mol.AC2Mol(formaldehyde_AC, atoms_int)
 
-img = Draw.MolToImage(formaldehyde)
+
+
+
+
+# ---------------------------- trying a structure that should have stereoisomers ------------------------
+
+# C2F2H2
+
+C2F2H2_AC = np.array([[0, 1, 1, 0, 1, 0],
+                      [1, 0, 0, 1, 0, 1],
+                      [1, 0, 0, 0, 0, 0], 
+                      [0, 1, 0, 0, 0, 0], 
+                      [1, 0, 0, 0, 0, 0], 
+                      [0, 1, 0, 0, 0, 0]])
+
+C2F2H2_atoms = ['c', 'c', 'f', 'f', 'h', 'h']
+
+C2F2H2_atoms_int = ac2mol.int_atom(C2F2H2_atoms)
+
+C2F2H2 = ac2mol.AC2Mol(C2F2H2_AC, C2F2H2_atoms_int)
+
+best_isomer = C2F2H2[0]
+other_isomers = C2F2H2[1]
+
+img = Draw.MolToImage(best_isomer)
 img.show()
+
+for i in other_isomers:
+    img = Draw.MolToImage(i)
+    img.show()
 
 
 

@@ -20,6 +20,7 @@ import numpy as np
 import networkx as nx
 
 from rdkit import Chem
+from rdkit.Chem.EnumerateStereoisomers import EnumerateStereoisomers
 import sys
 
 global __ATOM_LIST__
@@ -80,14 +81,23 @@ def str_atom(atom):
     return atom
 
 
-def int_atom(atom):
-    """
-    convert str atom to integer atom
+def int_atom(atoms):
+    """ takes in a list of atoms in string form and converting them all to integer form
+
+    Args:
+        atoms (list): list of atoms in string form
+
+    Returns:
+        list: same list of atoms but in integer form
     """
     global __ATOM_LIST__
-    #print(atom)
-    atom = atom.lower()
-    return __ATOM_LIST__.index(atom) + 1
+
+    
+    atoms_int = []
+    for i in atoms:
+        atoms_int.append(__ATOM_LIST__.index(i) + 1)
+        
+    return atoms_int
 
 
 def get_UA(maxValence_list, valence_list):
@@ -355,6 +365,9 @@ def BO2Mol(BO, atoms):
     Args:
         BO (numpy array): the bond order matrix that describes our structure
         atoms (list): the list of atomic numbers in our structure
+    
+    Returns:
+        mol (RDKit Molecule Object): returns the best matched molecule for this bond order matrix
     """
     rwMol = Chem.RWMol()
     
@@ -398,17 +411,22 @@ def AC2Mol(AC, atoms, charge = 0 , allow_charged_fragments=True, use_graph=True)
         charge (int, optional):the charge of our structure, 0 by default
         allow_charged_fragments (bool, optional): don't really know what this is
         use_graph (bool, optional): uses graph or not
+        
+    Returns:
+        best_mol (RDKit Molecular Object): The ideal structure that came from the bond order matrix
+        isomers (list): other stereoisomers in a list form
     """
     
     # create the bond order matrix
     BO = AC2BO(AC, atoms, charge, allow_charged_fragments, use_graph)
     
     # the molecule that matches up with the best bond order matrix
-    mol = BO2Mol(BO, atoms)
+    best_mol = BO2Mol(BO, atoms)
     
-    # figure out a way to also yield all of the stereroisomers of that molecule
-    
-    return mol
+    # list of stereoisomers of this best molecule
+    isomers = tuple(EnumerateStereoisomers(best_mol))
+    isomers = isomers[1:]
+    return best_mol, isomers
 
 
 
