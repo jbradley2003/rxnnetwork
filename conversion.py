@@ -1,5 +1,5 @@
 import numpy as np
-import xyz2mol
+import ac2mol
 from rdkit import Chem
 from rdkit.Chem import Draw
 
@@ -119,7 +119,7 @@ atoms = ['c', 'o', 'h', 'h']
 # convert atoms to list of integers
 atoms_int = []
 for i in atoms:
-    atoms_int.append(xyz2mol.int_atom(i))
+    atoms_int.append(ac2mol.int_atom(i))
 
 #                            c  o  h  h
 formaldehyde_AC = np.array([[0, 1, 1, 1],
@@ -132,7 +132,7 @@ formaldehyde_AC = np.array([[0, 1, 1, 1],
 # AC2BO function: params: AC: adjacency matrix
 #                         atoms: int list of atoms
 #                         charge: the charge of the structure
-formaldehyde_BO = xyz2mol.AC2BO(formaldehyde_AC, atoms_int, 0)
+formaldehyde_BO = ac2mol.AC2BO(formaldehyde_AC, atoms_int, 0)
 
 print(formaldehyde_BO[0])
 print()
@@ -154,48 +154,11 @@ print(formaldehyde_BO[1])
 #              to use the default one that is constructed with a list of atoms
 
 
-def BO2Mol(BO, atoms):
-    """ takes in a bond order matrix and converts it to a RDkit molecular graph
 
-    Args:
-        BO (numpy array): the bond order matrix that describes our structure
-        atoms (list): the list of atomic numbers in our structure
-    """
-    rwMol = Chem.RWMol()
-    
-    BO = BO[0]
-    # add the atoms
-    atom_indices = []
-    for i in atoms:
-        atom = Chem.Atom(i)
-        idx = rwMol.AddAtom(atom)
-        atom_indices.append(idx)
-        
-    
-    # add the bonds
-    for i in range(len(BO)):
-        for j in range(i+1, len(BO)):  # Only iterate upper triangular matrix
-            bond_order = BO[i][j]
-            if bond_order > 0:
-                # Determine bond type based on bond order
-                if bond_order == 1:
-                    bond_type = Chem.BondType.SINGLE
-                elif bond_order == 2:
-                    bond_type = Chem.BondType.DOUBLE
-                elif bond_order == 3:
-                    bond_type = Chem.BondType.TRIPLE
-                else:
-                    raise ValueError(f"Unsupported bond order: {bond_order}")
-                
-                # Add the bond
-                rwMol.AddBond(i, j, bond_type)
-    
-    mol = rwMol.GetMol()
-    return mol
 
 
 # form the RDkit molecular object of formaldehyde
-formaldehyde = BO2Mol(formaldehyde_BO, atoms_int)
+formaldehyde = ac2mol.AC2Mol(formaldehyde_AC, atoms_int)
 
 img = Draw.MolToImage(formaldehyde)
 img.show()
