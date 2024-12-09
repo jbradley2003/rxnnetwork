@@ -59,8 +59,6 @@ def one_cycle_conversion_matrices(molecular_graph, max_bond_changes=2):
     return conversion_matrices
 
 
-
-
 def permute_unique(nums):
     """ Creates all unique permutations from a list
 
@@ -91,6 +89,31 @@ def permute_unique(nums):
     return res
 
 
+def create_intermediates(reactant, atoms):
+    """ create all of the possible intermediate molecular graphs that stem from one structure
+
+    Args:
+        reactant (numpy array): the 2d AC matrix of the reactant
+        atoms (list): the interger list of atoms
+    """
+    # find all of the conversion matrices for that structure
+    conversion_matrices = one_cycle_conversion_matrices(reactant)
+    
+    # find all of the new AC matrices
+    intermediate_ac = []
+    for i in conversion_matrices:
+        intermediate_ac.append(reactant + i)
+    
+    # create the molecular graphs of them
+    intermediate_structures = []
+    for i in intermediate_ac:
+        intermediates = ac2mol.AC2Mol(i, atoms)
+        if intermediates != None: 
+            intermediate_structures.append(intermediates[0])
+    
+    return intermediate_structures
+    
+    
 def print_arrays(array_list):
     """prints out the numpy arrays so we can see them better
 
@@ -100,6 +123,15 @@ def print_arrays(array_list):
     for i in array_list:
         print(i)
         print()
+        
+def draw_molecules(molecule):
+    """print out the molecules
+
+    Args:
+        molecule (RDKit molecule object): it is a RDkit molecular object
+    """
+    img = Draw.MolToImage(molecule)
+    img.show()
 
 # ---------------- CONVERSION MATRICES TESTING ----------------------------------------------------
 # ------------------------------------------------------------------------------------------
@@ -187,19 +219,12 @@ other_isomers = C2F2H2[1]
 img = Draw.MolToImage(best_isomer)
 img.show()
 
-for i in other_isomers:
-    img = Draw.MolToImage(i)
-    img.show()
+# for i in other_isomers:
+#     img = Draw.MolToImage(i)
+#     img.show()
 
+# ---------------- attempting to find all of the intermediates for one cycle of C2F2H2 --------------------------
 
-
-
-
-
-
-
-
-
-
-
-
+C2F2H2_intermediates = create_intermediates(C2F2H2_AC, C2F2H2_atoms_int)
+for i in C2F2H2_intermediates:
+    draw_molecules(i)

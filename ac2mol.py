@@ -319,7 +319,9 @@ def AC2BO(AC, atoms, charge, allow_charged_fragments=True, use_graph=True):
         possible_valence = [x for x in atomic_valence[atomicNum] if x >= valence]
         if not possible_valence:
             print('Valence of atom',i,'is',valence,'which bigger than allowed max',max(atomic_valence[atomicNum]),'. Stopping')
-            sys.exit()
+            # fill in something that will allow for bad structures, just not do anything
+            # sys.exit()
+            return None
         valences_list_of_lists.append(possible_valence)
 
     # convert [[4],[2,1]] to [[4,2],[4,1]]
@@ -419,6 +421,8 @@ def AC2Mol(AC, atoms, charge = 0 , allow_charged_fragments=True, use_graph=True)
     
     # create the bond order matrix
     BO = AC2BO(AC, atoms, charge, allow_charged_fragments, use_graph)
+    if BO == None:
+        return None
     
     # the molecule that matches up with the best bond order matrix
     best_mol = BO2Mol(BO, atoms)
