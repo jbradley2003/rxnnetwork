@@ -314,6 +314,7 @@ def AC2BO(AC, atoms, charge, allow_charged_fragments=True, use_graph=True):
     valences_list_of_lists = []
     AC_valence = list(AC.sum(axis=1))
     
+    
     for i,(atomicNum,valence) in enumerate(zip(atoms,AC_valence)):
         # valence can't be smaller than number of neighbourgs
         possible_valence = [x for x in atomic_valence[atomicNum] if x >= valence]
@@ -401,6 +402,10 @@ def BO2Mol(BO, atoms):
                 rwMol.AddBond(i, j, bond_type)
     
     mol = rwMol.GetMol()
+    
+    # check if this structure can be part of unimolecular reaction
+    if len(Chem.GetMolFrags(mol)) > 1:
+        return None
     return mol
 
 
@@ -426,6 +431,8 @@ def AC2Mol(AC, atoms, charge = 0 , allow_charged_fragments=True, use_graph=True)
     
     # the molecule that matches up with the best bond order matrix
     best_mol = BO2Mol(BO, atoms)
+    if best_mol == None:
+        return None
     
     # list of stereoisomers of this best molecule
     isomers = tuple(EnumerateStereoisomers(best_mol))
