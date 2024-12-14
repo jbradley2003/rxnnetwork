@@ -2,6 +2,7 @@ import numpy as np
 import ac2mol
 from rdkit.Chem import Draw 
 import conversion as con
+from rdkit.Chem.rdmolops import GetAdjacencyMatrix
 
 
 # ---------------- CONVERSION MATRICES TESTING ----------------------------------------------------
@@ -84,11 +85,7 @@ C2F2H2_atoms_int = ac2mol.int_atom(C2F2H2_atoms)
 
 C2F2H2 = ac2mol.AC2Mol(C2F2H2_AC, C2F2H2_atoms_int)
 
-best_isomer = C2F2H2[0]
-other_isomers = C2F2H2[1]
-
-img = Draw.MolToImage(best_isomer)
-img.show()
+best_isomer = C2F2H2
 
 # for i in other_isomers:
 #     img = Draw.MolToImage(i)
@@ -97,5 +94,10 @@ img.show()
 # ---------------- attempting to find all of the intermediates for one cycle of C2F2H2 --------------------------
 
 C2F2H2_intermediates = con.create_intermediates(C2F2H2_AC, C2F2H2_atoms_int)
+
 for i in C2F2H2_intermediates:
-    con.draw_molecules(i)
+    AC = ac2mol.Mol2AC(i)[0]
+    atoms_int = ac2mol.Mol2AC(i)[1]
+    inters = con.create_intermediates(AC, atoms_int)
+    for j in inters:
+        con.draw_molecules(j)

@@ -23,14 +23,22 @@ def one_cycle_conversion_matrices(molecular_graph, max_bond_changes=2):
     # store those indices in a list
     A_ij_list = []
     for i in range(num_atoms-1):
-        # find the unique matrices that only have 1 change
         for j in range(i + 1, num_atoms):  # Upper triangle of the matrix
             A_ij_list.append((i,j))
 
     
     permutation_size = len(A_ij_list)
+    # 2 chemical changes
     permutation_list = [1]*max_bond_changes + [0]*(permutation_size-max_bond_changes)
     unique_permutations = permute_unique(permutation_list)
+    print("permutation size: ", len(unique_permutations))
+    # 1 chemical change
+    for i in range(permutation_size):
+        temp = permutation_size * [0]
+        temp[i] = 1
+        unique_permutations.append(temp)
+    
+    print("permutation list size: ", len(unique_permutations))
     
     # form the permutation matrices
     # 1. for each permutation list
@@ -88,6 +96,37 @@ def permute_unique(nums):
     dfs([], 0)
     return res
 
+def unique_RDkit_molecules(molecule_list):
+    """ takes in a list of RDKit molecules and returns the unique structures and their isomers
+
+    Args:
+        molecule_list (list): list of RDKit molecules
+
+    Returns:
+        list : list of RDKit molecules that are unique with their isomers
+    """
+    unique_structures = []
+    unique_smiles = set()
+    # loop through all of the molecules and get rid of the repeated ones
+    for i in molecule_list:
+        smiles = Chem.MolToSmiles(i, isomericSmiles = True)
+        if smiles not in unique_smiles:
+            unique_smiles.add(smiles)
+            unique_structures.append(i)
+    
+    for i in unique_structures:
+        isomers = tuple(EnumerateStereoisomers(i))
+        # loop through all of the isomers and add unique ones to our list
+        for j in isomers:
+            print(j)
+            smiles = Chem.MolToSmiles(j, isomericSmiles = True)
+            if smiles not in unique_smiles:
+                unique_smiles.add(smiles)
+                unique_structures.append(j)
+
+    return unique_structures
+
+
 
 def create_intermediates(reactant, atoms):
     """ create all of the possible intermediate molecular graphs that stem from one structure
@@ -109,7 +148,10 @@ def create_intermediates(reactant, atoms):
     for i in intermediate_ac:
         intermediates = ac2mol.AC2Mol(i, atoms)
         if intermediates != None: 
-            intermediate_structures.append(intermediates[0])
+            # add the best intermediate
+            intermediate_structures.append(intermediates)
+    
+    intermediate_structures = unique_RDkit_molecules(intermediate_structures)
     
     return intermediate_structures
     
@@ -133,98 +175,7 @@ def draw_molecules(molecule):
     img = Draw.MolToImage(molecule)
     img.show()
 
-# ---------------- CONVERSION MATRICES TESTING ----------------------------------------------------
-# ------------------------------------------------------------------------------------------
-r = np.array([[0,1,0,0,0,0],[1,0,0,0,0,0],[0,0,0,1,0,0], [0,0,1,0,0,0],[0,0,0,0,0,1],[0,0,0,0,1,0]])
-
-test_matrix = np.array([[0,1,0],[0, 0, 1],[0, 0, 0]])
-
-test2_matrix = np.empty((5,5))
-result = one_cycle_conversion_matrices(test_matrix)
-
-
-
-# --------------------  For all of our Tests, we will start with FORMALDEHYDE, CH2O, easy structure
-
-# atoms list in the matrix: C, O, H, H
-atoms = ['c', 'o', 'h', 'h']
-
-# atoms list in integer form
-atoms_int = ac2mol.int_atom(atoms)
-
-#                            c  o  h  h
-formaldehyde_AC = np.array([[0, 1, 1, 1],
-                            [1, 0, 0, 0],
-                            [1, 0, 0, 0],
-                            [1, 0, 0, 0]])
-
-# ---------------------- TESTING OUT THE BOND ORDER MATRIX CONVERSION ------------------------
-
-# AC2BO function: params: AC: adjacency matrix
-#                         atoms: int list of atoms
-#                         charge: the charge of the structure
-formaldehyde_BO = ac2mol.AC2BO(formaldehyde_AC, atoms_int, 0)
-
-
-print(formaldehyde_BO[0])
-print()
-print(formaldehyde_BO[1])
 
 
 
 
-
-
-# ---------------- TESTING OUT AC TO 3D MOLECULAR -----------------------------------------
-# we are gonna call the AC2mol function:
-
-# params: charge: the charge of the overall species? or a list of the charges?
-#         atoms: a list of integers that represent the atoms
-#         AC: the adjacency matrix
-#         mol: a molecular object in RDKit, in their case, they combined it with 
-#              the coordinate systm to get a more accurate mol. We are just gonna try
-#              to use the default one that is constructed with a list of atoms
-
-
-
-
-
-# form the RDkit molecular object of formaldehyde
-formaldehyde = ac2mol.AC2Mol(formaldehyde_AC, atoms_int)
-
-
-
-
-
-# ---------------------------- trying a structure that should have stereoisomers ------------------------
-
-# C2F2H2
-
-C2F2H2_AC = np.array([[0, 1, 1, 0, 1, 0],
-                      [1, 0, 0, 1, 0, 1],
-                      [1, 0, 0, 0, 0, 0], 
-                      [0, 1, 0, 0, 0, 0], 
-                      [1, 0, 0, 0, 0, 0], 
-                      [0, 1, 0, 0, 0, 0]])
-
-C2F2H2_atoms = ['c', 'c', 'f', 'f', 'h', 'h']
-
-C2F2H2_atoms_int = ac2mol.int_atom(C2F2H2_atoms)
-
-C2F2H2 = ac2mol.AC2Mol(C2F2H2_AC, C2F2H2_atoms_int)
-
-best_isomer = C2F2H2[0]
-other_isomers = C2F2H2[1]
-
-img = Draw.MolToImage(best_isomer)
-img.show()
-
-# for i in other_isomers:
-#     img = Draw.MolToImage(i)
-#     img.show()
-
-# ---------------- attempting to find all of the intermediates for one cycle of C2F2H2 --------------------------
-
-C2F2H2_intermediates = create_intermediates(C2F2H2_AC, C2F2H2_atoms_int)
-for i in C2F2H2_intermediates:
-    draw_molecules(i)

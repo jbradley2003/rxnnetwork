@@ -20,7 +20,7 @@ import numpy as np
 import networkx as nx
 
 from rdkit import Chem
-from rdkit.Chem.EnumerateStereoisomers import EnumerateStereoisomers
+from rdkit.Chem.rdmolops import GetAdjacencyMatrix
 import sys
 
 global __ATOM_LIST__
@@ -95,6 +95,7 @@ def int_atom(atoms):
     
     atoms_int = []
     for i in atoms:
+        i = i.lower()
         atoms_int.append(__ATOM_LIST__.index(i) + 1)
         
     return atoms_int
@@ -434,12 +435,26 @@ def AC2Mol(AC, atoms, charge = 0 , allow_charged_fragments=True, use_graph=True)
     if best_mol == None:
         return None
     
-    # list of stereoisomers of this best molecule
-    isomers = tuple(EnumerateStereoisomers(best_mol))
-    isomers = isomers[1:]
-    return best_mol, isomers
+    return best_mol
 
 
+def Mol2AC(mol):
+    """ converts RDKit molecule back into AC
+
+    Args:
+        mol (RDKit molecule): molecule in RDKit form
+
+    Returns:
+        AC: the AC matrix
+        atom_int: the list of atoms in integer form
+    """
+    # adjacency matrix
+    AC = GetAdjacencyMatrix(mol)
+    # list of atom symbols
+    atom_str = [atom.GetSymbol() for atom in mol.GetAtoms()]
+    atom_int = int_atom(atom_str)
+    
+    return AC, atom_int
 
 
 def chiral_stereo_check(mol):
