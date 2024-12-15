@@ -322,7 +322,7 @@ def AC2BO(AC, atoms, charge, allow_charged_fragments=True, use_graph=True):
         # valence can't be smaller than number of neighbourgs
         possible_valence = [x for x in atomic_valence[atomicNum] if x >= valence]
         if not possible_valence:
-            print('Valence of atom',i,'is',valence,'which bigger than allowed max',max(atomic_valence[atomicNum]),'. Stopping')
+            #print('Valence of atom',i,'is',valence,'which bigger than allowed max',max(atomic_valence[atomicNum]),'. Stopping')
             # fill in something that will allow for bad structures, just not do anything
             # sys.exit()
             return None
@@ -380,6 +380,8 @@ def BO2Mol(BO, atoms):
     BO = BO[0]
     
     # you cannot have a bond order larger than 3
+    if BO.shape[0] != 6:
+        return None
     if np.any(BO > 3):
         return None
     
@@ -447,16 +449,17 @@ def AC2Mol(AC, atoms, charge = 0 , allow_charged_fragments=True, use_graph=True)
 
 
 def Mol2Smiles(mol):
-    return MolToSmiles(mol, isomericSmiles = True)
+    return MolToSmiles(mol, isomericSmiles = True, allHsExplicit=True, ignoreAtomMapNumbers=False, canonical=False, allBondsExplicit = True)
 
 def Smiles2AC(smiles):
-    mol =  MolFromSmiles(smiles)
-    return Mol2AC
+    mol =  MolFromSmiles(smiles, sanitize = False)
+    ac, atoms = Mol2AC(mol)
+    return ac, atoms
 
 def AC2Smiles(AC, atoms):
     mol = AC2Mol(AC, atoms)
-    return MolToSmiles(mol, isomericSmiles = True)
-
+    smiles = Mol2Smiles(mol)
+    return smiles
 def Mol2AC(mol):
     """ converts RDKit molecule back into AC
 

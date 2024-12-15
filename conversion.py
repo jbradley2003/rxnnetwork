@@ -158,7 +158,7 @@ def create_intermediates(reactant, atoms):
 
 # ------------------ updating the set and adding it to the reaction Graph --------------------------    
 
-def update_graph(reactant, atoms, smiles_list, G):
+def update_graph(reactant, atoms, smile_list, G, col):
     """ updates our ac set for unique structures
 
     Args:
@@ -169,18 +169,21 @@ def update_graph(reactant, atoms, smiles_list, G):
         ac_set: the set of unique AC matrices
         G: updated graph
     """
+    new_smiles = []
     mol_intermediates = create_intermediates(reactant, atoms)
-    
+    reactant_smiles = ac2mol.AC2Smiles(reactant, atoms)
     # update ac_set and nodes
     for i in mol_intermediates:
         mol_smiles = ac2mol.Mol2Smiles(i)
-        if mol_smiles not in smiles_list:
-            smiles_list.append(mol_smiles)
-            G.add_node(mol_smiles)
+        if mol_smiles not in smile_list:
+            new_smiles.append(mol_smiles)
+            smile_list.append(mol_smiles)
+            G.add_node(mol_smiles, color = col)
         # add edge
-        G.add_edge(ac2mol.AC2Smiles(reactant, atoms), mol_smiles)
+        if reactant_smiles != mol_smiles:
+            G.add_edge(reactant_smiles, mol_smiles)
     
-    return smiles_list, G
+    return smile_list, G, new_smiles
     
 
 
