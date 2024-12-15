@@ -21,6 +21,8 @@ import networkx as nx
 
 from rdkit import Chem
 from rdkit.Chem.rdmolops import GetAdjacencyMatrix
+from rdkit.Chem.rdmolfiles import MolToSmiles
+from rdkit.Chem.rdmolfiles import MolFromSmiles
 import sys
 
 global __ATOM_LIST__
@@ -376,6 +378,12 @@ def BO2Mol(BO, atoms):
     rwMol = Chem.RWMol()
     
     BO = BO[0]
+    
+    # you cannot have a bond order larger than 3
+    if np.any(BO > 3):
+        return None
+    
+    
     # add the atoms
     atom_indices = []
     for i in atoms:
@@ -405,8 +413,8 @@ def BO2Mol(BO, atoms):
     mol = rwMol.GetMol()
     
     # check if this structure can be part of unimolecular reaction
-    if len(Chem.GetMolFrags(mol)) > 1:
-        return None
+    # if len(Chem.GetMolFrags(mol)) > 1:
+    #     return None
     return mol
 
 
@@ -437,6 +445,17 @@ def AC2Mol(AC, atoms, charge = 0 , allow_charged_fragments=True, use_graph=True)
     
     return best_mol
 
+
+def Mol2Smiles(mol):
+    return MolToSmiles(mol, isomericSmiles = True)
+
+def Smiles2AC(smiles):
+    mol =  MolFromSmiles(smiles)
+    return Mol2AC
+
+def AC2Smiles(AC, atoms):
+    mol = AC2Mol(AC, atoms)
+    return MolToSmiles(mol, isomericSmiles = True)
 
 def Mol2AC(mol):
     """ converts RDKit molecule back into AC

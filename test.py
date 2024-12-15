@@ -98,6 +98,8 @@ C2F2H2_intermediates = con.create_intermediates(C2F2H2_AC, C2F2H2_atoms_int)
 for i in C2F2H2_intermediates:
     AC = ac2mol.Mol2AC(i)[0]
     atoms_int = ac2mol.Mol2AC(i)[1]
+    print(AC)
+    print(atoms_int)
     inters = con.create_intermediates(AC, atoms_int)
     for j in inters:
         con.draw_molecules(j)

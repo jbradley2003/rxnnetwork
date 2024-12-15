@@ -114,15 +114,15 @@ def unique_RDkit_molecules(molecule_list):
             unique_smiles.add(smiles)
             unique_structures.append(i)
     
-    for i in unique_structures:
-        isomers = tuple(EnumerateStereoisomers(i))
-        # loop through all of the isomers and add unique ones to our list
-        for j in isomers:
-            print(j)
-            smiles = Chem.MolToSmiles(j, isomericSmiles = True)
-            if smiles not in unique_smiles:
-                unique_smiles.add(smiles)
-                unique_structures.append(j)
+    # for i in unique_structures:
+    #     isomers = tuple(EnumerateStereoisomers(i))
+    #     # loop through all of the isomers and add unique ones to our list
+    #     for j in isomers:
+    #         print(j)
+    #         smiles = Chem.MolToSmiles(j, isomericSmiles = True)
+    #         if smiles not in unique_smiles:
+    #             unique_smiles.add(smiles)
+    #             unique_structures.append(j)
 
     return unique_structures
 
@@ -154,8 +154,37 @@ def create_intermediates(reactant, atoms):
     intermediate_structures = unique_RDkit_molecules(intermediate_structures)
     
     return intermediate_structures
+
+
+# ------------------ updating the set and adding it to the reaction Graph --------------------------    
+
+def update_graph(reactant, atoms, smiles_list, G):
+    """ updates our ac set for unique structures
+
+    Args:
+        mol_intermediates (list): list of RDKit molecules
+        ac_set (set): set of unique AC matrices
+
+    Returns:
+        ac_set: the set of unique AC matrices
+        G: updated graph
+    """
+    mol_intermediates = create_intermediates(reactant, atoms)
     
+    # update ac_set and nodes
+    for i in mol_intermediates:
+        mol_smiles = ac2mol.Mol2Smiles(i)
+        if mol_smiles not in smiles_list:
+            smiles_list.append(mol_smiles)
+            G.add_node(mol_smiles)
+        # add edge
+        G.add_edge(ac2mol.AC2Smiles(reactant, atoms), mol_smiles)
     
+    return smiles_list, G
+    
+
+
+
 def print_arrays(array_list):
     """prints out the numpy arrays so we can see them better
 
