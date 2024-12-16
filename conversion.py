@@ -146,13 +146,12 @@ def create_intermediates(reactant, atoms):
     # create the molecular graphs of them
     intermediate_structures = []
     for i in intermediate_ac:
-        intermediate = ac2mol.AC2Mol(i, atoms)
-        if intermediate != None: 
+        intermediates = ac2mol.AC2Mol(i, atoms)
+        if intermediates != None: 
             # add the best intermediate
-            intermediate_structures.append(intermediate)
+            intermediate_structures.append(intermediates)
     
     intermediate_structures = unique_RDkit_molecules(intermediate_structures)
-    print(intermediate_structures)
     
     return intermediate_structures
 
@@ -186,8 +185,31 @@ def update_graph(reactant, atoms, smile_list, G, col):
     
     return smile_list, G, new_smiles
     
-
-
+def generateNetwork(ac, ac_list, G, n):
+    # color list
+    color_list = ['red', 'orange', 'yellow', 'green', 'blue']
+    
+    # initiate the graph with reactant
+    smiles_list = []
+    r_int_list = ac2mol.int_atom(ac_list)
+    r_smiles = ac2mol.AC2Smiles(ac, r_int_list)
+    smiles_list.append(r_smiles)
+    G.add_node(r_smiles, color='purple')
+    
+    # list that will be used to store new intermediates after each iteration
+    inters = [[smiles_list]]
+    # n iterations
+    for i in range(n):
+        new_inter = []
+        for j in inters[i]:
+            ac = ac2mol.Smiles2AC(j)
+            smiles_list, G, new_smile = update_graph(ac[0], ac[1], smiles_list, G, color_list[i])
+            new_inter = new_inter + new_smile
+        inters.append([new_inter])
+ 
+        
+    return G, inters, smiles_list
+    
 
 def print_arrays(array_list):
     """prints out the numpy arrays so we can see them better
@@ -207,6 +229,7 @@ def draw_molecules(molecule):
     """
     img = Draw.MolToImage(molecule)
     img.show()
+
 
 
 
