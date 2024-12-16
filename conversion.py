@@ -3,6 +3,7 @@ import ac2mol
 from rdkit import Chem
 from rdkit.Chem import Draw
 from rdkit.Chem.EnumerateStereoisomers import EnumerateStereoisomers
+import networkx as nx
 
 
 def one_cycle_conversion_matrices(molecular_graph, max_bond_changes=2):
@@ -31,14 +32,13 @@ def one_cycle_conversion_matrices(molecular_graph, max_bond_changes=2):
     # 2 chemical changes
     permutation_list = [1]*max_bond_changes + [0]*(permutation_size-max_bond_changes)
     unique_permutations = permute_unique(permutation_list)
-    print("permutation size: ", len(unique_permutations))
+    
     # 1 chemical change
     for i in range(permutation_size):
         temp = permutation_size * [0]
         temp[i] = 1
         unique_permutations.append(temp)
     
-    print("permutation list size: ", len(unique_permutations))
     
     # form the permutation matrices
     # 1. for each permutation list
@@ -184,11 +184,13 @@ def update_graph(reactant, atoms, smile_list, G, col):
             G.add_edge(reactant_smiles, mol_smiles)
     
     return smile_list, G, new_smiles
+
+
     
-def generateNetwork(ac, ac_list, G, n):
+def generateNetwork(ac, ac_list, n):
     # color list
-    color_list = ['red', 'orange', 'yellow', 'green', 'blue']
-    
+    color_list = ["#CC2F00", '#DB6600', '#E39E00', '#76B80D', '#007668', '#006486', '#465AB2', '#6D47B1', '#873B9C', 'brown']
+    G = nx.Graph()
     # initiate the graph with reactant
     smiles_list = []
     r_int_list = ac2mol.int_atom(ac_list)
@@ -197,20 +199,25 @@ def generateNetwork(ac, ac_list, G, n):
     G.add_node(r_smiles, color='purple')
     
     # list that will be used to store new intermediates after each iteration
-    inters = [[smiles_list]]
+    inters = [[r_smiles]]
     # n iterations
     for i in range(n):
         new_inter = []
         for j in inters[i]:
-            ac = ac2mol.Smiles2AC(j)
-            smiles_list, G, new_smile = update_graph(ac[0], ac[1], smiles_list, G, color_list[i])
+            ac_j = ac2mol.Smiles2AC(j)
+            _, _, new_smile = update_graph(ac_j[0], ac_j[1], smiles_list, G, color_list[i])
             new_inter = new_inter + new_smile
-        inters.append([new_inter])
+        inters.append(new_inter)
  
         
     return G, inters, smiles_list
     
+def draw_network(G, node_size = 20):
+    node_colors = [G.nodes[node]['color'] for node in G.nodes()] 
+    pos = nx.spring_layout(G, seed = 42)
+    nx.draw(G, pos, node_color = node_colors, node_size = node_size)
 
+    
 def print_arrays(array_list):
     """prints out the numpy arrays so we can see them better
 
