@@ -146,12 +146,13 @@ def create_intermediates(reactant, atoms):
     # create the molecular graphs of them
     intermediate_structures = []
     for i in intermediate_ac:
-        intermediates = ac2mol.AC2Mol(i, atoms)
-        if intermediates != None: 
+        intermediate = ac2mol.AC2Mol(i, atoms)
+        if intermediate != None: 
             # add the best intermediate
-            intermediate_structures.append(intermediates)
+            intermediate_structures.append(intermediate)
     
     intermediate_structures = unique_RDkit_molecules(intermediate_structures)
+    print(intermediate_structures)
     
     return intermediate_structures
 
@@ -206,7 +207,6 @@ def draw_molecules(molecule):
     """
     img = Draw.MolToImage(molecule)
     img.show()
-
 
 
 

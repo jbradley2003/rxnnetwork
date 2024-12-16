@@ -53,3 +53,6 @@ node_colors = [G.nodes[node]['color'] for node in G.nodes()]
 pos = nx.spring_layout(G, seed = 42)
 nx.draw(G, pos, node_color = node_colors, node_size=20)
 plt.savefig('third_iter.png')
+
+print("Number of Cycles: ",len(nx.cycle_basis(G)))
+print("Number of Nodes: ",len(G.nodes))

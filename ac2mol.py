@@ -317,7 +317,7 @@ def AC2BO(AC, atoms, charge, allow_charged_fragments=True, use_graph=True):
     valences_list_of_lists = []
     AC_valence = list(AC.sum(axis=1))
     
-    
+    # combines them into pairs and keeps track of their index
     for i,(atomicNum,valence) in enumerate(zip(atoms,AC_valence)):
         # valence can't be smaller than number of neighbourgs
         possible_valence = [x for x in atomic_valence[atomicNum] if x >= valence]
@@ -325,7 +325,7 @@ def AC2BO(AC, atoms, charge, allow_charged_fragments=True, use_graph=True):
             #print('Valence of atom',i,'is',valence,'which bigger than allowed max',max(atomic_valence[atomicNum]),'. Stopping')
             # fill in something that will allow for bad structures, just not do anything
             # sys.exit()
-            return None
+            return 
         valences_list_of_lists.append(possible_valence)
 
     # convert [[4],[2,1]] to [[4,2],[4,1]]
@@ -380,8 +380,7 @@ def BO2Mol(BO, atoms):
     BO = BO[0]
     
     # you cannot have a bond order larger than 3
-    if BO.shape[0] != 6:
-        return None
+
     if np.any(BO > 3):
         return None
     
