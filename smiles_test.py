@@ -56,12 +56,28 @@ reactant = MolFromSmiles("[C](=[O])(-[H])-[H].[OH]-[O]=[C](-[H])-[H]", sanitize 
 # [CH](=[C](-[H])-[H])-[H].[H]-[O]-[O]=[O]	[CH](=[C](-[H])-[H])-[H].[HH].[OH]-[O]=[O]	Undirected	1180			0.23076923191547394
 # [C](=[C](-[H])-[H])(-[H])-[H].[O]=[O]-[OH]	[CH](=[C](-[H])-[H])-[H].[HH].[OH]-[O]=[O]	Undirected	25			0.09090909361839294
 
+
+
+
+
+
+
+
+
+
+
+# ozonolysis 4 iterations
+r = MolFromSmiles("[H][C]([H])=[C]([H])[H].[O]=[O][OH]", sanitize = False)
+i1 = MolFromSmiles("[H][CH]([H])[C]([H])([H])[OH].[O]#[O]", sanitize = False)
+i2 = MolFromSmiles("[H][C]([H])=[O].[H][C]([H])=[O][OH]", sanitize = False)
+
+
+
 r = MolFromSmiles("[C](=[C](-[H])-[H])(-[H])-[H].[O]=[O]-[OH]", sanitize = False)
 i1 = MolFromSmiles("[CH](=[C](-[H])-[H])-[H].[HH].[OH]-[O]=[O]", sanitize = False)
 i2 = MolFromSmiles("[CH]1(-[H])-[C](-[H])(-[H])-[O]-[O]-[O]-1.[HH]", sanitize = False)
 i3 = MolFromSmiles("[CH](-[C](-[H])(-[H])-[O]=[O])(-[OH])-[H].[HH]", sanitize = False)
 p = MolFromSmiles("[C](=[O])(-[H])-[H].[C](-[H])(-[H])=[O]-[OH]", sanitize = False)
-
 
 # ozonolysis 3 iterations
 r = MolFromSmiles("[H][C]([H])=[C]([H])[H].[O]=[O][OH]", sanitize = False)
@@ -70,22 +86,17 @@ i2 = MolFromSmiles("[HH].[H][CH3].[H][C]([H])=[O][O]=[O]", sanitize = False)
 i3 = MolFromSmiles("[HH].[H][CH]=[O][OH].[H][C]([H])=[O]", sanitize = False)
 p = MolFromSmiles("[H][C]([H])=[O].[H][C]([H])=[O][OH]", sanitize = False)
 
-
-
-
-# paper example 7 iterations
+# paper example dist 7 iterations
 r = MolFromSmiles("[Cl][I].[Cl][I].[H][H]", sanitize = False)
 i1 = MolFromSmiles("[ClH].[ClH].[H][H].[IH].[IH]", sanitize = False)
 i2 = MolFromSmiles("[ClH].[HH].[H][Cl].[IH].[IH]", sanitize = False)
 i3 = MolFromSmiles("[H][Cl].[H][Cl].[I][I]", sanitize = False)
 
-# ozonolysis 4 iterations
-r = MolFromSmiles("[H][C]([H])=[C]([H])[H].[O]=[O][OH]", sanitize = False)
-i1 = MolFromSmiles("[H][CH]([H])[C]([H])([H])[OH].[OH][OH]", sanitize = False)
-i2 = MolFromSmiles("[H][C]([H])=[O].[H][C]([H])=[O][OH]", sanitize = False)
+# paper example tanimoto 
 
-con.draw_molecules(r)
-con.draw_molecules(i1)
+i2 = MolFromSmiles("[CH]1(-[H])(-[H])-[C](-[H])(-[H])-[O]-[O]-[O]-1", sanitize = False)
+
 con.draw_molecules(i2)
+
 
 
