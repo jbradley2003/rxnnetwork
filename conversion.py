@@ -1,9 +1,12 @@
 import numpy as np
 import ac2mol
 from rdkit import Chem
+from rdkit.Chem import AllChem
 from rdkit.Chem import Draw
 from rdkit.Chem.EnumerateStereoisomers import EnumerateStereoisomers
 import networkx as nx
+from rdkit import DataStructs
+
 
 
 def one_cycle_conversion_matrices(molecular_graph, max_bond_changes=2):
@@ -156,6 +159,19 @@ def create_intermediates(reactant, atoms):
     return intermediate_structures
 
 
+def molecular_distance(smile1, smile2):
+    fpgen = AllChem.GetRDKitFPGenerator()
+    mol1 = ac2mol.MolFromSmiles(smile1, sanitize = False)
+    mol2 = ac2mol.MolFromSmiles(smile2, sanitize = False)
+    # default fingerprint, can change later
+    fingerprint1 = fpgen.GetFingerprint(mol1)
+    fingerprint2 = fpgen.GetFingerprint(mol2)
+    
+    similarity = DataStructs.TanimotoSimilarity(fingerprint1,fingerprint2)
+    distance = 1 - similarity
+    return distance
+
+
 # ------------------ updating the set and adding it to the reaction Graph --------------------------    
 
 def update_graph(reactant, atoms, smile_list, G, col):
@@ -181,13 +197,25 @@ def update_graph(reactant, atoms, smile_list, G, col):
             G.add_node(mol_smiles, color = col)
         # add edge
         if reactant_smiles != mol_smiles:
-            G.add_edge(reactant_smiles, mol_smiles)
+            G.add_edge(reactant_smiles, mol_smiles, weight = molecular_distance(reactant_smiles, mol_smiles))
     
     return smile_list, G, new_smiles
 
 
     
 def generateNetwork(ac, ac_list, n):
+    """ master equation that generates the graphs
+
+    Args:
+        ac (numpy array): the atomic connectivity reactant matrix
+        ac_list (list): list of atoms string form
+        n (int): the number of intermediate layers
+
+    Returns:
+        G: the final reaction network
+        inters: all of the structures that are added at each layer
+        smiles_list: the list of all of the smiles strucutures
+    """
     # color list
     color_list = ["#CC2F00", '#DB6600', '#E39E00', '#76B80D', '#007668', '#006486', '#465AB2', '#6D47B1', '#873B9C', 'brown']
     G = nx.Graph()
@@ -214,8 +242,8 @@ def generateNetwork(ac, ac_list, n):
     
 def draw_network(G, node_size = 20):
     node_colors = [G.nodes[node]['color'] for node in G.nodes()] 
-    pos = nx.spring_layout(G, seed = 42)
-    nx.draw(G, pos, node_color = node_colors, node_size = node_size)
+    # pos = nx.spring_layout(G, seed = 42)
+    nx.draw(G, node_color = node_colors, node_size = node_size)
 
     
 def print_arrays(array_list):
