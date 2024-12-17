@@ -43,7 +43,7 @@ criegee = MolFromSmiles(p_smiles, sanitize = False)
 #con.draw_molecules(criegee)
 
 start_time = time.time()
-G, inters, smiles_list = con.generateNetwork(r, r_atoms, 6)
+G, inters, smiles_list = con.generateNetwork(r, r_atoms, 3)
 end_time = time.time()
 
 # finding the product in our reaction network
@@ -60,6 +60,6 @@ nx.write_gexf(G, "ozonolysis.gexf")
 distance, path = nx.single_source_dijkstra(G, source=r_smiles, target=p_smiles)
 print(f"Shortest Path from reactant to Criegee: {path} with distance {distance}")
 
-# con.draw_network(G)
+#con.draw_network(G)
 #plt.savefig('ozonolysis.png')
 print("It took ", end_time - start_time," seconds to create the ozonolysis reaction network.")

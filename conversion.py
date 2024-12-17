@@ -171,6 +171,14 @@ def molecular_distance(smile1, smile2):
     distance = 1 - similarity
     return distance
 
+def chemical_distance(smile1, smile2):
+    ac1 = np.array(ac2mol.Smiles2AC(smile1)[0])
+    ac2 = np.array(ac2mol.Smiles2AC(smile2)[0])
+
+
+    return np.sum(np.abs(ac1 - ac2))
+    
+
 
 # ------------------ updating the set and adding it to the reaction Graph --------------------------    
 
@@ -198,6 +206,35 @@ def update_graph(reactant, atoms, smile_list, G, col):
         # add edge
         if reactant_smiles != mol_smiles:
             G.add_edge(reactant_smiles, mol_smiles, weight = molecular_distance(reactant_smiles, mol_smiles))
+    
+    return smile_list, G, new_smiles
+
+
+
+def update_graph_with_distance(reactant, atoms, smile_list, G, col):
+    """ updates our ac set for unique structures
+
+    Args:
+        mol_intermediates (list): list of RDKit molecules
+        ac_set (set): set of unique AC matrices
+
+    Returns:
+        ac_set: the set of unique AC matrices
+        G: updated graph
+    """
+    new_smiles = []
+    mol_intermediates = create_intermediates(reactant, atoms)
+    reactant_smiles = ac2mol.AC2Smiles(reactant, atoms)
+    # update ac_set and nodes
+    for i in mol_intermediates:
+        mol_smiles = ac2mol.Mol2Smiles(i)
+        if mol_smiles not in smile_list:
+            new_smiles.append(mol_smiles)
+            smile_list.append(mol_smiles)
+            G.add_node(mol_smiles, color = col)
+        # add edge
+        if reactant_smiles != mol_smiles:
+            G.add_edge(reactant_smiles, mol_smiles, weight = chemical_distance(reactant_smiles, mol_smiles))
     
     return smile_list, G, new_smiles
 
@@ -233,7 +270,7 @@ def generateNetwork(ac, ac_list, n):
         new_inter = []
         for j in inters[i]:
             ac_j = ac2mol.Smiles2AC(j)
-            _, _, new_smile = update_graph(ac_j[0], ac_j[1], smiles_list, G, color_list[i])
+            _, _, new_smile = update_graph_with_distance(ac_j[0], ac_j[1], smiles_list, G, color_list[i])
             new_inter = new_inter + new_smile
         inters.append(new_inter)
  

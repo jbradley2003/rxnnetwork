@@ -448,7 +448,7 @@ def AC2Mol(AC, atoms, charge = 0 , allow_charged_fragments=True, use_graph=True)
 
 
 def Mol2Smiles(mol):
-    return MolToSmiles(mol, isomericSmiles = True, allHsExplicit=True, ignoreAtomMapNumbers=False, canonical=False, allBondsExplicit = True)
+    return MolToSmiles(mol, isomericSmiles = True, allHsExplicit=True)
 
 def Smiles2AC(smiles):
     mol =  MolFromSmiles(smiles, sanitize = False)
