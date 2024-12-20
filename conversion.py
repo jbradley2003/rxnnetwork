@@ -71,7 +71,7 @@ def one_cycle_conversion_matrices(molecular_graph, max_bond_changes=2):
 
 
 def permute_unique(nums):
-    """ Creates all unique permutations from a list
+    """ Creates all unique permutations from a list. from leet code :)
 
     Args:
         nums (list): list of values that we want to create permutations for
@@ -159,7 +159,16 @@ def create_intermediates(reactant, atoms):
     return intermediate_structures
 
 
-def molecular_distance(smile1, smile2):
+def tanimoto_difference(smile1, smile2):
+    """ calculates the tanimoto distance between two structures
+
+    Args:
+        smile1 (string): first SMILES string
+        smile2 (string): second SMILES string
+
+    Returns:
+        _type_: tanimoto difference 
+    """
     fpgen = AllChem.GetRDKitFPGenerator()
     mol1 = ac2mol.MolFromSmiles(smile1, sanitize = False)
     mol2 = ac2mol.MolFromSmiles(smile2, sanitize = False)
@@ -172,6 +181,15 @@ def molecular_distance(smile1, smile2):
     return distance
 
 def chemical_distance(smile1, smile2):
+    """ calculates the chemical distance between two structures
+
+    Args:
+        smile1 (string): first SMILES string
+        smile2 (string): second SMILES string
+
+    Returns:
+        num: the chemical distance between two structures
+    """
     ac1 = np.array(ac2mol.Smiles2AC(smile1)[0])
     ac2 = np.array(ac2mol.Smiles2AC(smile2)[0])
 
@@ -205,7 +223,7 @@ def update_graph(reactant, atoms, smile_list, G, col):
             G.add_node(mol_smiles, color = col)
         # add edge
         if reactant_smiles != mol_smiles:
-            G.add_edge(reactant_smiles, mol_smiles, weight = molecular_distance(reactant_smiles, mol_smiles))
+            G.add_edge(reactant_smiles, mol_smiles, weight = chemical_distance(reactant_smiles, mol_smiles))
     
     return smile_list, G, new_smiles
 
@@ -278,6 +296,12 @@ def generateNetwork(ac, ac_list, n):
     return G, inters, smiles_list
     
 def draw_network(G, node_size = 20):
+    """ draws out our graph in NetworkX
+
+    Args:
+        G (networkx graph): the networkx graph that we want to display
+        node_size (int, optional): the size of our nodes in the graph
+    """
     node_colors = [G.nodes[node]['color'] for node in G.nodes()] 
     # pos = nx.spring_layout(G, seed = 42)
     nx.draw(G, node_color = node_colors, node_size = node_size)
