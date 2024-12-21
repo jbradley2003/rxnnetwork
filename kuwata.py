@@ -1,4 +1,8 @@
-# simulating the reaction for Kuwata research
+""" 
+simulating the reaction for Kuwata research through ethene ozonolysis
+    
+   ethene + ozone → criegee intermediates 
+   """
 import time
 import conversion as con
 import numpy as np

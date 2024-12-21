@@ -1,3 +1,8 @@
+"""
+Manual Attempt at finding the Dijkstra's algorithm for the ozonolysis reaction
+when the networkx function did not work :(
+"""
+
 import conversion as con
 import numpy as np
 import ac2mol

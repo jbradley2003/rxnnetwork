@@ -1,3 +1,6 @@
+"""This module is used to create all of the conversion matrices and houses the functions that generate
+the reaction networks"""
+
 import numpy as np
 import ac2mol
 from rdkit import Chem
@@ -8,7 +11,7 @@ import networkx as nx
 from rdkit import DataStructs
 
 
-
+# --------------- conversion matrices and creating intermediates ---------------------------
 def one_cycle_conversion_matrices(molecular_graph, max_bond_changes=2):
     """
     Generate all conversion matrices for a 1 iteration of a given molecular graph.
@@ -198,7 +201,7 @@ def chemical_distance(smile1, smile2):
     
 
 
-# ------------------ updating the set and adding it to the reaction Graph --------------------------    
+# ------------------ updating the reaction network --------------------------    
 
 def update_graph(reactant, atoms, smile_list, G, col):
     """ updates our ac set for unique structures
@@ -295,6 +298,8 @@ def generateNetwork(ac, ac_list, n):
         
     return G, inters, smiles_list
     
+ 
+# ------------- display structures and network ---------------------------   
 def draw_network(G, node_size = 20):
     """ draws out our graph in NetworkX
 

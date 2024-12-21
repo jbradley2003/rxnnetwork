@@ -1,3 +1,7 @@
+"""
+The basic testing process when we first built our modules
+"""
+
 import numpy as np
 import ac2mol
 from rdkit.Chem import Draw 

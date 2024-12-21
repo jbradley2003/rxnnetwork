@@ -1,3 +1,7 @@
+"""
+simulating the example presented in the paper. 
+    2ICl + H2 → 2HCl + I2
+"""
 import conversion as con
 import numpy as np
 import ac2mol
