@@ -63,3 +63,10 @@ print(f"Shortest Path from reactant to Criegee: {path} with distance {distance}"
 #con.draw_network(G)
 #plt.savefig('ozonolysis.png')
 print("It took ", end_time - start_time," seconds to create the ozonolysis reaction network.")
+
+
+# export as pandas edgelist for fuurthur analysis
+edgelist_df = nx.to_pandas_edgelist(G)
+
+output_file = 'ozonolysis_edges.csv'
+edgelist_df.to_csv(output_file, index=False)

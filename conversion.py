@@ -223,7 +223,7 @@ def update_graph(reactant, atoms, smile_list, G, col):
             G.add_node(mol_smiles, color = col)
         # add edge
         if reactant_smiles != mol_smiles:
-            G.add_edge(reactant_smiles, mol_smiles, weight = chemical_distance(reactant_smiles, mol_smiles))
+            G.add_edge(reactant_smiles, mol_smiles, weight = tanimoto_difference(reactant_smiles, mol_smiles))
     
     return smile_list, G, new_smiles
 
