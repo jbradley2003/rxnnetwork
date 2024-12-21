@@ -70,7 +70,7 @@ print("It took ", end_time - start_time," seconds to create the ozonolysis react
 
 
 # export as pandas edgelist for fuurthur analysis
-edgelist_df = nx.to_pandas_edgelist(G)
+#edgelist_df = nx.to_pandas_edgelist(G)
 
-output_file = 'ozonolysis_edges.csv'
-edgelist_df.to_csv(output_file, index=False)
+#output_file = 'ozonolysis_edges.csv'
+#edgelist_df.to_csv(output_file, index=False)
