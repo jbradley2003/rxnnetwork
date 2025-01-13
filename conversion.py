@@ -12,7 +12,7 @@ from rdkit import DataStructs
 
 
 # --------------- conversion matrices and creating intermediates ---------------------------
-def one_cycle_conversion_matrices(molecular_graph, max_bond_changes=2):
+def one_cycle_conversion_matrices(molecular_graph, active_indices, max_bond_changes=2):
     """
     Generate all conversion matrices for a 1 iteration of a given molecular graph.
 
@@ -24,13 +24,17 @@ def one_cycle_conversion_matrices(molecular_graph, max_bond_changes=2):
         list: A list of valid conversion numpy matrices.
     """
 
-    num_atoms = molecular_graph.shape[0]
 
     # Iterate over non-diagonal upper triangular matrix indices
     # store those indices in a list
+    
+    # TODO: change these to active atom matrices
+    active_atom_matrix = create_active_atom_matrix(active_indices, molecular_graph)
+    num_active_atoms = active_atom_matrix.shape[0]
+    
     A_ij_list = []
-    for i in range(num_atoms-1):
-        for j in range(i + 1, num_atoms):  # Upper triangle of the matrix
+    for i in range(num_active_atoms-1):
+        for j in range(i + 1, num_active_atoms):  # Upper triangle of the matrix
             A_ij_list.append((i,j))
 
     
@@ -68,7 +72,16 @@ def one_cycle_conversion_matrices(molecular_graph, max_bond_changes=2):
         # add in the lower symmetric component
         lower = upper.T
         conversion = upper + lower
-        conversion_matrices.append(conversion)
+        
+        # these are the permuted active atom matrices
+        # TODO: then transform back into adjacency matrix
+        # loop through active atom matrix
+        # add each element back to proper place in original matrix
+        temp = np.copy(molecular_graph)
+        for i in range(num_active_atoms):
+            for j in range(num_active_atoms):
+                temp[active_indices[i], active_indices[j]] = conversion[i,j]
+        conversion_matrices.append(temp)
     
     return conversion_matrices
 
@@ -101,6 +114,20 @@ def permute_unique(nums):
     
     dfs([], 0)
     return res
+
+def create_active_atom_matrix(active_atom_indices, AC):
+    """ create the active atom matrix
+
+    Args:
+        active_atom_indices (list): positions of active atoms in original adjacency matrix, zero indexing
+        AC (np.array): adjacency matrix
+
+    Returns:
+        np.array: active atom matrix
+    """
+    active_atom_matrix = AC[np.ix_(active_atom_indices, active_atom_indices)]
+    return active_atom_matrix
+
 
 def unique_RDkit_molecules(molecule_list):
     """ takes in a list of RDKit molecules and returns the unique structures and their isomers
