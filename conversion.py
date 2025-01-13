@@ -31,6 +31,7 @@ def one_cycle_conversion_matrices(molecular_graph, active_indices, max_bond_chan
     # TODO: change these to active atom matrices
     active_atom_matrix = create_active_atom_matrix(active_indices, molecular_graph)
     num_active_atoms = active_atom_matrix.shape[0]
+    print(active_atom_matrix)
     
     A_ij_list = []
     for i in range(num_active_atoms-1):
@@ -56,7 +57,7 @@ def one_cycle_conversion_matrices(molecular_graph, active_indices, max_bond_chan
     conversion_matrices = []
     for matrix in unique_permutations:
         # create an non-zero upper triangular copy of the reactant graph
-        upper = np.triu(np.copy(molecular_graph))
+        upper = np.triu(np.copy(active_indices))
         for x in range(len(matrix)):
             i = A_ij_list[x][0]
             j = A_ij_list[x][1]
@@ -64,7 +65,7 @@ def one_cycle_conversion_matrices(molecular_graph, active_indices, max_bond_chan
             # if in the reactant graph it is 1
             # and if in our permutation matrix it is 1
             # switch to -1
-            if molecular_graph[i,j] == 1 and matrix[x] == 1:
+            if active_atom_matrix[i,j] == 1 and matrix[x] == 1:
                 upper[i,j] = -1
             else: 
                 upper[i,j] = matrix[x]
@@ -77,11 +78,12 @@ def one_cycle_conversion_matrices(molecular_graph, active_indices, max_bond_chan
         # TODO: then transform back into adjacency matrix
         # loop through active atom matrix
         # add each element back to proper place in original matrix
-        temp = np.copy(molecular_graph)
+        temp_AC = np.copy(molecular_graph)
         for i in range(num_active_atoms):
             for j in range(num_active_atoms):
-                temp[active_indices[i], active_indices[j]] = conversion[i,j]
-        conversion_matrices.append(temp)
+                temp_AC[active_indices[i], active_indices[j]] = conversion[i,j]
+        print(temp_AC)
+        conversion_matrices.append(temp_AC)
     
     return conversion_matrices
 
@@ -161,7 +163,7 @@ def unique_RDkit_molecules(molecule_list):
 
 
 
-def create_intermediates(reactant, atoms):
+def create_intermediates(reactant, atoms, active_indices):
     """ create all of the possible intermediate molecular graphs that stem from one structure
 
     Args:
@@ -169,7 +171,7 @@ def create_intermediates(reactant, atoms):
         atoms (list): the interger list of atoms
     """
     # find all of the conversion matrices for that structure
-    conversion_matrices = one_cycle_conversion_matrices(reactant)
+    conversion_matrices = one_cycle_conversion_matrices(reactant, active_indices)
     
     # find all of the new AC matrices
     intermediate_ac = []
