@@ -103,9 +103,9 @@ best_isomer = C2F2H2
 
 # ---------------- attempting to find all of the intermediates for one cycle of C2F2H2 --------------------------
 
-C2F2H2_intermediates = con.create_intermediates(C2F2H2_AC, C2F2H2_atoms_int, [0,1,2,3])
+C2F2H2_intermediates = con.create_intermediates(C2F2H2_AC, C2F2H2_atoms_int, [0,1,3])
 
 for i in C2F2H2_intermediates:
     con.draw_molecules(i)
-        
+
     
